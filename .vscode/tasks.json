@@ -1,0 +1,42 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "1. Start Backend (FastAPI ML)",
+      "type": "shell",
+      "command": "$env:PATH = 'C:\\Users\\ksara\\.python311;C:\\Users\\ksara\\.python311\\Scripts;' + $env:PATH; python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000 --reload",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "hotelguard"
+      }
+    },
+    {
+      "label": "2. Start Frontend (React Vite)",
+      "type": "shell",
+      "command": "$env:PATH = 'C:\\Users\\ksara\\.nodejs;C:\\Users\\ksara\\.python311;' + $env:PATH; cd frontend; npm run dev",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "hotelguard"
+      }
+    },
+    {
+      "label": "Run HotelGuard AI (Full Stack)",
+      "dependsOn": [
+        "1. Start Backend (FastAPI ML)",
+        "2. Start Frontend (React Vite)"
+      ],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
