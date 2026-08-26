@@ -19,12 +19,14 @@ from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Query, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR = os.path.join(BASE_DIR, "..", "models")
 DATA_DIR = os.path.join(BASE_DIR, "..", "data")
+FRONTEND_DIST = os.path.join(BASE_DIR, "..", "frontend", "dist")
 
 CHAMPION_MODEL_PATH = os.path.join(MODELS_DIR, "hotel_cancellation_champion.pkl")
 MODEL_METADATA_PATH = os.path.join(MODELS_DIR, "model_metadata.json")
@@ -1497,6 +1499,37 @@ def get_model_blind_zone_bookings(filter_status: str = "ALL", limit: int = 20):
 
     return {"bookings": results}
 
+# ---------------------------------------------------------
+# Static Frontend Serving & Single Page App (SPA) Fallback
+# ---------------------------------------------------------
+if os.path.exists(FRONTEND_DIST):
+    assets_dir = os.path.join(FRONTEND_DIST, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/")
+    async def serve_root():
+        index_file = os.path.join(FRONTEND_DIST, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        return JSONResponse({"message": "HotelGuard AI Backend is running. Frontend build not found."})
+
+    @app.get("/{full_path:path}")
+    async def serve_spa_frontend(full_path: str):
+        # If specific static file exists (e.g. favicon, robots.txt, etc.)
+        target_file = os.path.join(FRONTEND_DIST, full_path)
+        if os.path.isfile(target_file):
+            return FileResponse(target_file)
+        
+        # Fallback to SPA index.html for client-side routing
+        index_file = os.path.join(FRONTEND_DIST, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        
+        raise HTTPException(status_code=404, detail="Page not found")
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    host = os.environ.get("HOST", "0.0.0.0")
+    uvicorn.run(app, host=host, port=port)
