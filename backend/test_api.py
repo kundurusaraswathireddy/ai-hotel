@@ -4,8 +4,7 @@ Automated unit and integration tests for HotelGuard AI ML Pipeline & FastAPI Bac
 
 import sys
 import os
-import json
-import pytest
+# import pytest
 from fastapi.testclient import TestClient
 
 # Add project root to sys.path
