@@ -1,0 +1,10 @@
+streamlit>=1.30.0
+fastapi
+uvicorn[standard]
+numpy
+pandas
+joblib
+scikit-learn
+lightgbm
+python-multipart
+plotly
