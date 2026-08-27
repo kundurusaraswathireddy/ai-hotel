@@ -44,4 +44,4 @@ ENV HOST=0.0.0.0
 EXPOSE 8000
 
 # Start FastAPI serving both API endpoints and React frontend
-CMD ["sh", "-c", "uvicorn backend.app:app --host 0.0.0.0 --port ${PORT:-8000} --workers 2"]
+CMD uvicorn backend.app:app --host 0.0.0.0 --port ${PORT:-8000} --workers 2
